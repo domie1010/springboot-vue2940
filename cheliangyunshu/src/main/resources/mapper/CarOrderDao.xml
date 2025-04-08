@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.CarOrderDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.car_danhao_number as carDanhaoNumber
+        ,a.siji_id as sijiId
+        ,a.car_id as carId
+        ,a.shangpin_name as shangpinName
+        ,a.shangpin_number as shangpinNumber
+        ,a.yunshu_money as yunshuMoney
+        ,a.chuxing_time as chuxingTime
+        ,a.car_order_yesno_types as carOrderYesnoTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.CarOrderView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,car.car_name as carName
+        ,car.car_types as carTypes
+        ,car.car_pinpai_types as carPinpaiTypes
+        ,car.car_pai_number as carPaiNumber
+        ,car.car_photo as carPhoto
+        ,car.car_yesno_types as carYesnoTypes
+        ,siji.siji_name as sijiName
+        ,siji.siji_phone as sijiPhone
+        ,siji.siji_id_number as sijiIdNumber
+        ,siji.siji_photo as sijiPhoto
+        ,siji.siji_yesno_types as sijiYesnoTypes
+
+        FROM car_order  a
+        left JOIN car car ON a.car_id = car.id
+        left JOIN siji siji ON a.siji_id = siji.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.carDanhaoNumber != '' and params.carDanhaoNumber != null and params.carDanhaoNumber != 'null' ">
+                and a.car_danhao_number like CONCAT('%',#{params.carDanhaoNumber},'%')
+            </if>
+            <if test="params.sijiId != null">
+                and a.siji_id = #{params.sijiId}
+            </if>
+            <if test="params.carId != null">
+                and a.car_id = #{params.carId}
+            </if>
+            <if test=" params.shangpinName != '' and params.shangpinName != null and params.shangpinName != 'null' ">
+                and a.shangpin_name like CONCAT('%',#{params.shangpinName},'%')
+            </if>
+            <if test="params.shangpinNumberStart != null">
+                <![CDATA[  and a.shangpin_number >= #{params.shangpinNumberStart}   ]]>
+            </if>
+            <if test="params.shangpinNumberEnd != null">
+                <![CDATA[  and a.shangpin_number <= #{params.shangpinNumberEnd}   ]]>
+            </if>
+            <if test="params.yunshuMoneyStart != null ">
+                <![CDATA[  and a.yunshu_money >= #{params.yunshuMoneyStart}   ]]>
+            </if>
+            <if test="params.yunshuMoneyEnd != null ">
+                <![CDATA[  and a.yunshu_money <= #{params.yunshuMoneyEnd}   ]]>
+            </if>
+            <if test=" params.chuxingTimeStart != '' and params.chuxingTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.chuxing_time) >= UNIX_TIMESTAMP(#{params.chuxingTimeStart}) ]]>
+            </if>
+            <if test=" params.chuxingTimeEnd != '' and params.chuxingTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.chuxing_time) <= UNIX_TIMESTAMP(#{params.chuxingTimeEnd}) ]]>
+            </if>
+            <if test="params.carOrderYesnoTypes != null">
+                and a.car_order_yesno_types = #{params.carOrderYesnoTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+            <if test=" params.carName != '' and params.carName != null and params.carName != 'null' ">
+                and car.car_name like CONCAT('%',#{params.carName},'%')
+            </if>
+            <if test="params.carTypes != null">
+                and car.car_types = #{params.carTypes}
+            </if>
+
+            <if test="params.carPinpaiTypes != null">
+                and car.car_pinpai_types = #{params.carPinpaiTypes}
+            </if>
+
+            <if test=" params.carPaiNumber != '' and params.carPaiNumber != null and params.carPaiNumber != 'null' ">
+                and car.car_pai_number like CONCAT('%',#{params.carPaiNumber},'%')
+            </if>
+            <if test="params.carYesnoTypes != null">
+                and car.car_yesno_types = #{params.carYesnoTypes}
+            </if>
+
+            <if test=" params.sijiName != '' and params.sijiName != null and params.sijiName != 'null' ">
+                and siji.siji_name like CONCAT('%',#{params.sijiName},'%')
+            </if>
+            <if test=" params.sijiPhone != '' and params.sijiPhone != null and params.sijiPhone != 'null' ">
+                and siji.siji_phone like CONCAT('%',#{params.sijiPhone},'%')
+            </if>
+            <if test=" params.sijiIdNumber != '' and params.sijiIdNumber != null and params.sijiIdNumber != 'null' ">
+                and siji.siji_id_number like CONCAT('%',#{params.sijiIdNumber},'%')
+            </if>
+            <if test="params.sijiYesnoTypes != null">
+                and siji.siji_yesno_types = #{params.sijiYesnoTypes}
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
